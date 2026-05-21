@@ -1,7 +1,9 @@
+import Navbar from "@/components/Navbar";
+
 export default function Home() {
   return (
     <main>
-      <h1>KickSaver</h1>
+      <Navbar />
     </main>
   )
 }
