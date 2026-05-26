@@ -3,9 +3,10 @@ import QualitySelector from "./QualitySelector";
 
 type Props = {
   info: KickVideoInfo;
+  kickUrl: string;
 };
 
-export default function VideoPreview({ info }: Props) {
+export default function VideoPreview({ info, kickUrl }: Props) {
   return (
     <div className="max-w-4xl mx-auto px-4">
       <div className="rounded-xl border border-(--border) bg-(--card) overflow-hidden">
@@ -41,7 +42,9 @@ export default function VideoPreview({ info }: Props) {
           </div>
         </div>
 
-        {info.source && <QualitySelector source={info.source} />}
+        {info.source && (
+          <QualitySelector source={info.source} kickUrl={kickUrl} />
+        )}
       </div>
     </div>
   );

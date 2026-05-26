@@ -5,12 +5,15 @@ import { getQualities, type Quality } from "../app/lib/getQualities";
 
 type Props = {
   source: string;
+  kickUrl: string;
 };
 
-export default function QualitySelector({ source }: Props) {
+export default function QualitySelector({ source, kickUrl }: Props) {
   const [qualities, setQualities] = useState<Quality[]>([]);
   const [selected, setSelected] = useState<Quality | null>(null);
   const [loading, setLoading] = useState(true);
+  const [downloading, setDownloading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchQualities() {
@@ -22,6 +25,27 @@ export default function QualitySelector({ source }: Props) {
     }
     fetchQualities();
   }, [source]);
+
+  async function handleDownload() {
+  if (!selected) return;
+  setDownloading(true);
+  setError(null);
+
+  try {
+    const height = selected.resolution.split("x")[1];
+
+    const a = document.createElement("a");
+    a.href = `/api/download?url=${encodeURIComponent(kickUrl)}&quality=${height}`;
+    a.download = `kicksaver_${height}p.mp4`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  } catch {
+    setError("Something went wrong. Try again.");
+  } finally {
+    setDownloading(false);
+  }
+}
 
   if (loading) {
     return (
@@ -52,7 +76,7 @@ export default function QualitySelector({ source }: Props) {
             className={`px-4 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
               selected?.url === q.url
                 ? "bg-(--accent) text-(--accent-foreground) border-(--accent)"
-                : "bg-(--muted) text-(--foreground) border-(--border)r:border-[var(--accent)]"
+                : "bg-(--muted) text-(--foreground) border-(--border) hover:border-(--accent)"
             }`}
           >
             {q.label}
@@ -60,16 +84,17 @@ export default function QualitySelector({ source }: Props) {
         ))}
       </div>
 
-      {selected && (
-        <a
-          href={selected.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-block px-6 py-2.5 rounded-xl bg-(--accent) text-(--accent-foreground) font-semibold hover:opacity-90 transition-opacity"
-        >
-          Download {selected.label}
-        </a>
+      {error && (
+        <p className="text-sm text-red-500 mb-3">{error}</p>
       )}
+
+      <button
+        onClick={handleDownload}
+        disabled={downloading}
+        className="px-6 py-2.5 rounded-xl bg-(--accent) text-(--accent-foreground) font-semibold hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
+      >
+        {downloading ? "Processing..." : `Download ${selected?.label}`}
+      </button>
     </div>
   );
 }

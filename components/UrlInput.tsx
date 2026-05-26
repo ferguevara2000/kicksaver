@@ -73,7 +73,7 @@ export default function UrlInput() {
 
       {videoInfo && (
         <div className="mt-6">
-          <VideoPreview info={videoInfo} />
+          <VideoPreview info={videoInfo} kickUrl={url} />
         </div>
       )}
     </section>
